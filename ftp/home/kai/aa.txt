@@ -1,0 +1,441 @@
+perl /home/software/sv_detect/factera-v1.4.4/factera.pl ./2.mapping/1710170.dup.bam /home/software/sv_detect/factera-v1.4.4/exons_inter-gene.bed /home/software/sv_detect/factera-v1.4.4/hg19.2bit/hg19.2bit /data/bed_file/fusion.bed;
+
+1820018.error_summary_metrics   文件是这个生成的 java  -jar /home/software/picard.jar  CollectSequencingArtifactMetrics I=./2.mapping/1820018.recal.bam O=./2.mapping/1820018 R=/data/reference/human/hg19.2bit/hg19.fasta MQ=30 Q=20 UNPAIRED=true  DB_SNP=/data/reference/human/gatk_resource/dbsnp_138.hg19.vcf &
+
+
+
+
+DNA代表新鲜组织
+cfDNA 血液
+FFPE 石蜡
+
+#16gene 2个样本 tumor 和 normal       :success
+run_path=/data/project/test/16gene_new/17_1202
+
+ad=/data/NGS_raw_data/ilmn/171202_NB501424_0025_AHTC2VAFXX
+
+t_R1=1721057_cfDNA_S11_R1_001.fastq.gz
+t_R2=1721057_cfDNA_S11_R2_001.fastq.gz
+n_R1=1721058_gDNA_S12_R1_001.fastq.gz
+n_R2=1721058_gDNA_S12_R2_001.fastq.gz
+t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+n_name=`echo $n_R1|awk -F"_" '{print $1}'`
+echo "mkdir $run_path/$t_name "> test 
+
+echo  "~/Process_pipeline.1 somatic -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name -nfq1 $ad/$n_R1 -nfq2 $ad/$n_R2 -normal $n_name  -bait_target /data/bed_file/16gene/idt.intervals -target /data/bed_file/16gene/idt.intervals -outdir . -fusion -cnv -cnv_bed /data/DB/16gene_PoN/gatk4/16gene.padded.bed -cnv_pon /data/DB/16gene_PoN/gatk4/75bp.pon  -cnv_avg /data/DB/16gene_PoN/scatter_plot/75bp.avg  -outdir . -wenku 15gene > $t_name/$t_name.sh" >> test
+echo "dos2unix $t_name/$t_name.sh" >> test
+
+
+
+
+
+
+
+
+
+#sh test
+#cd $t_name 
+#nohup sh $t_name.sh &
+-------------------------------------------------------------------------------------------------------------
+
+#16gene的单个肿瘤样本，需要加pon1    -PON /data/DB/mutect2_PoN/16gene/test/16gene_MuTect2_PoN.vcf  :success
+
+run_path=/data/project/test/16gene_new/17_1202
+ad=/data/NGS_raw_data/ilmn/171202_NB501424_0025_AHTC2VAFXX
+
+t_R1=1710285_FFPE_S10_R1_001.fastq.gz
+t_R2=1710285_FFPE_S10_R2_001.fastq.gz
+t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+echo "mkdir $run_path/$t_name "> test 
+
+echo  "~/Process_pipeline.1 somatic -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name   -bait_target /data/bed_file/16gene/idt.intervals -target /data/bed_file/16gene/idt.intervals -outdir . -PON /data/DB/mutect2_PoN/16gene/test/16gene_MuTect2_PoN.vcf  -fusion -cnv -cnv_bed /data/DB/16gene_PoN/gatk4/16gene.padded.bed -cnv_pon /data/DB/16gene_PoN/gatk4/75bp.pon  -cnv_avg /data/DB/16gene_PoN/scatter_plot/75bp.avg  -outdir .  -wenku 15gene > $t_name/$t_name.sh" >> test
+echo "dos2unix $t_name/$t_name.sh" >> test
+
+---------------------------------------------------------------------------------------------------------
+#83gene 2个样本 tumor 和 normal      ##12gene和15gene 的gatk用83的的做，画图还是各自的的
+awk 'NR>=89&&NR<=159' $t_name.sh  > n.sh
+awk 'NR<=89||NR>=159' $t_name.sh  > t.sh
+mkdir 1.QC && mkdir 2.mapping
+cp ~/detect.16gene.py detect.$t_name.py
+nohup python3.6 detect.$t_name.py &
+
+run_path=/data/project/83gene/12_14
+
+ad=/data/NGS_raw_data/ilmn/180110_NB501424_0031_AHVWLMAFXX/Data
+t_R1=1721345_cfDNA_S1_R1_001.fastq.gz
+t_R2=1721345_cfDNA_S1_R2_001.fastq.gz
+n_R1=1721346_gDNA_S2_R1_001.fastq.gz
+n_R2=1721346_gDNA_S2_R2_001.fastq.gz
+t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+n_name=`echo $n_R1|awk -F"_" '{print $1}'`
+echo "mkdir $run_path/$t_name "> test 
+# /data/DB/83_PoN/scatter_plot/FFPE.avg /data/DB/83_PoN/scatter_plot/cfDNA.avg
+echo  "~/Process_pipeline.1 somatic -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name -nfq1 $ad/$n_R1 -nfq2 $ad/$n_R2 -normal $n_name  -bait_target /data/bed_file/panel-83/83-panel.intervals -target /data/bed_file/panel-83/83-panel.intervals -outdir . -fusion -cnv -cnv_bed /data/DB/83_PoN/gatk4/83.padded.bed -cnv_pon /data/DB/83_PoN/gatk4/normals.pon  -cnv_avg /data/DB/16gene_PoN/scatter_plot/75bp.avg  -outdir . -wenku 15gene > $t_name/$t_name.sh" >> test
+echo "dos2unix $t_name/$t_name.sh" >> test
+
+sh test
+cd $t_name 
+
+
+
+
+--------------------------------------------------------------------------------------------------------
+
+
+#83gene 单个样本 tumor    83panel也是当作12基因做   #12gene和15gene 的gatk用83的做，画图还是各自的
+awk 'NR>=89&&NR<=159' $t_name.sh  > n.sh
+awk 'NR<=89||NR>=159' $t_name.sh  > t.sh
+mkdir 1.QC && mkdir 2.mapping
+cp ~/detect.16gene.py detect.$t_name.py
+
+run_path=/data/project/83gene/12_14
+
+ad=/data/NGS_raw_data/ilmn/180110_NB501424_0031_AHVWLMAFXX/Data
+
+t_R1=1710529_FFPE_S3_R1_001.fastq.gz
+t_R2=1710529_FFPE_S3_R2_001.fastq.gz
+t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+echo "mkdir $run_path/$t_name "> test 
+
+# /data/DB/83_PoN/scatter_plot/FFPE.avg /data/DB/83_PoN/scatter_plot/cfDNA.avg
+echo  "~/Process_pipeline.1 somatic -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name   -bait_target /data/bed_file/panel-83/83-panel.intervals -target /data/bed_file/panel-83/83-panel.intervals -outdir . -PON /data/DB/mutect2_PoN/16gene/test/16gene_MuTect2_PoN.vcf  -fusion -cnv -cnv_bed /data/DB/83_PoN/gatk4/83.padded.bed -cnv_pon /data/DB/83_PoN/gatk4/normals.pon   -cnv_avg /data/DB/16gene_PoN/scatter_plot/75bp.avg  -outdir .  -wenku 15gene > $t_name/$t_name.sh" >> test
+sh test
+cd $t_name 
+
+----------------------------------------------------------------------
+#83基因只做化疗位点   23gene
+#83gene 单个样本 tumor  
+awk 'NR>=89&&NR<=159' $t_name.sh  > n.sh
+awk 'NR<=89||NR>=159' $t_name.sh  > t.sh
+mkdir 1.QC && mkdir 2.mapping
+cp ~/detect.16gene.py detect.$t_name.py
+
+run_path=/data/project/83gene/12_14
+
+ad=/data/NGS_raw_data/ilmn/180116_NB501424_0032_AHVWLVAFXX/Data
+
+t_R1=1820018_gDNA_S8_R1_001.fastq.gz
+t_R2=1820018_gDNA_S8_R2_001.fastq.gz
+#t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+t_name=1820018
+echo "mkdir $run_path/$t_name "> test 
+# /data/DB/83_PoN/scatter_plot/FFPE.avg /data/DB/83_PoN/scatter_plot/cfDNA.avg
+echo  "~/Process_pipeline.1 somatic -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name   -bait_target /data/bed_file/panel-83/83-panel.intervals -target /data/bed_file/panel-83/83-panel.intervals -outdir . -fusion  -cnv -cnv_bed /data/DB/83_PoN/gatk4/83.padded.bed -cnv_pon /data/DB/83_PoN/gatk4/normals.pon -cnv_avg  /data/DB/83_PoN/scatter_plot/cfDNA.avg  -outdir . -genotype -wenku 83gene -msi > $t_name/$t_name.sh" >> test
+sh test
+cd $t_name 
+
+awk 'NR<=72||(NR>=85&&NR<=87)||(NR>=128&&NR<=132)||NR>=141' $t_name.sh > t.$t_name.sh
+
+sed -i '74 s/recal.bam/realign.bam/' t.$t_name.sh   #这个没有recal.bam
+#nohup sh t.$t_name.sh &
+
+
+"HDAC1","MUTYH","PARP1","GEN1","EPCAM","MSH2","MSH6","FANCL","ERCC3","PMS1","IDH1","BARD1","XRCC5","FANCD2","XPC","MLH1","BAP1","ATR","RFC1","FAM175A","RAD1","RAD17","XRCC4","RAD50","FANCE","HDAC2","ESR1","PMS2","XRCC2","PRKDC","NBN","FANCG","FANCC","XPA","PTEN","RPP30","RRM1","FANCF","RAD9A","MRE11A","ATM","ZBTB16","CHEK1","GAPDH","NCOR2","POLE","BRCA2","RB1","ERCC5","FOXA1","FANCM","RAD51B","MLH3","XRCC3","RAD51","FANCI","SLX4","ERCC4","PALB2","CDH1","FANCA","TP53","NCOR1","RAD51D","CDK12","BRCA1","HOXB13","SPOP","RAD51C","BRIP1","STK11","XRCC1","ERCC2","ERCC1","POLD1","PCNA","CHEK2","XRCC6","FANCB","AR"
+
+、
+
+
+
+============================================================================================
+
+
+
+#83gene 2个样本 tumor 和 normal
+awk 'NR>=89&&NR<=159' $t_name.sh  > n.sh
+awk 'NR<=89||NR>=159' $t_name.sh  > t.sh
+mkdir 1.QC && mkdir 2.mapping
+cp ~/detect.16gene.py detect.$t_name.py
+nohup python3.6 detect.$t_name.py &
+
+run_path=/data/project/83gene/12_14
+
+ad=/data/NGS_raw_data/ilmn/180110_NB501424_0031_AHVWLMAFXX/Data
+
+t_R1=1730028_DNA_S5_R1_001.fastq.gz
+t_R2=1730028_DNA_S5_R2_001.fastq.gz
+n_R1=1721370_gDNA_S4_R1_001.fastq.gz
+n_R2=1721370_gDNA_S4_R2_001.fastq.gz
+t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+n_name=`echo $n_R1|awk -F"_" '{print $1}'`
+echo "mkdir $run_path/$t_name "> test 
+
+#/data/DB/83_PoN/scatter_plot/FFPE.avg /data/DB/83_PoN/scatter_plot/cfDNA.avg
+echo  "~/Process_pipeline.1 somatic -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name -nfq1 $ad/$n_R1 -nfq2 $ad/$n_R2 -normal $n_name  -bait_target /data/bed_file/panel-83/83-panel.intervals -target /data/bed_file/panel-83/83-panel.intervals -outdir . -fusion  -cnv -cnv_bed /data/DB/83_PoN/gatk4/83.padded.bed -cnv_pon /data/DB/83_PoN/gatk4/normals.pon -cnv_avg  /data/DB/83_PoN/scatter_plot/cfDNA.avg  -outdir . -genotype -wenku 83gene -msi  > $t_name/$t_name.sh" >> test
+echo "dos2unix $t_name/$t_name.sh" >> test
+
+
+
+sh test
+cd $t_name 
+#nohup sh $t_name.sh &
+
+/data/DB/83_PoN/scatter_plot/FFPE.avg
+
+
+
+
+------------------------------------------------------------------------------------------------------
+#620gene 2个样本 tumor 和 normal    620的cnv的图暂时用exon的画图，到时还要改    
+###拆分用
+awk 'NR>=89&&NR<=159' $t_name.sh  > n.sh
+awk 'NR<=89||NR>=159' $t_name.sh  > t.sh
+mkdir 1.QC && mkdir 2.mapping
+
+cp ~/detect.16gene.py detect.$t_name.py
+####  
+#wc -l  71 n.sh  151 t.sh
+     
+
+
+
+
+run_path=/data/project/620gene/1221
+
+ad=/data/NGS_raw_data/cloudhealth/171228
+
+t_R1=S0707_05A_CHG030754-YH20171228-1721337-cfDNA-GTGGCC_L005_R1.fastq.gz
+t_R2=S0707_05A_CHG030754-YH20171228-1721337-cfDNA-GTGGCC_L005_R2.fastq.gz
+n_R1=S0707_05A_CHG030754-YH20171228-1721338-gDNA-GTTTCG_L005_R1.fastq.gz
+n_R2=S0707_05A_CHG030754-YH20171228-1721338-gDNA-GTTTCG_L005_R2.fastq.gz
+#t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+t_name=1721337
+#n_name=`echo $n_R1|awk -F"_" '{print $1}'`
+n_name=1721338
+echo "mkdir $run_path/$t_name "> test 
+
+
+#/data/DB/620_PoN/scatter_plot/cfDNA.avg   /data/DB/620_PoN/scatter_plot/FFPE.avg    根据情况改
+echo  "~/Process_pipeline.1 somatic -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name -nfq1 $ad/$n_R1 -nfq2 $ad/$n_R2 -normal $n_name  -bait_target /data/bed_file/panel-620/620-panel.intervals -target /data/bed_file/panel-620/620-panel.intervals -outdir . -fusion -cnv -cnv_bed /data/DB/620_PoN/gatk/620.padded.bed  -cnv_pon /data/DB/620_PoN/gatk/normals.pon  -cnv_avg /data/DB/620_PoN/scatter_plot/cfDNA.avg -outdir . -genotype -wenku 620gene -msi > $t_name/$t_name.sh" >> test
+echo "dos2unix $t_name/$t_name.sh" >> test
+
+sh test
+cd $t_name 
+
+
+
+
+
+
+
+========================================------=======================================
+###620 单个样本  没有pon文件
+
+run_path=/data/project/620gene/1207
+
+ad=/data/NGS_raw_data/cloudhealth/171220
+
+t_R1=S0699_08B_CHG030382-YH20171220-1710501-FFPE-GTCCGC_L008_R1.fastq.gz
+t_R2=S0699_08B_CHG030382-YH20171220-1710501-FFPE-GTCCGC_L008_R2.fastq.gz
+#t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+t_name=1710501
+
+echo "mkdir $run_path/$t_name "> test 
+
+
+
+echo  "~/Process_pipeline.1 somatic -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name   -bait_target /data/bed_file/panel-620/620-panel.intervals -target /data/bed_file/panel-620/620-panel.intervals -outdir . -fusion -cnv -cnv_bed /data/DB/620_PoN/gatk/620.padded.bed  -cnv_pon /data/DB/620_PoN/gatk/normals.pon  -cnv_avg /data/DB/620_PoN/scatter_plot/HK.avg -outdir . -genotype -wenku 620gene -msi > $t_name/$t_name.sh" >> test
+
+echo "dos2unix $t_name/$t_name.sh" >> test
+sh test
+cd $t_name 
+
+sed -i '122,125 s/^/#/g' $t_name.sh
+sed -i '138 s/^/#/g' $t_name.sh
+sed -i '139i sh /home/software/script/genotype_for_chemosites.sh '$t_name' ./2.mapping/'$t_name'.realign.bam' $t_name.sh
+
+
+
+
+--------------------------------------------------------------------------------
+遗传性肿瘤 panel x    seqtype:targetseq 去重， ‘ampliseq’ 没有去重   #success
+
+run_path=/data/project/x_panel
+
+ad=/data/NGS_raw_data/ilmn/180110_NB501424_0031_AHVWLMAFXX/Data
+
+t_R1=YY_swab_S8_R1_001.fastq.gz
+t_R2=YY_swab_S8_R2_001.fastq.gz
+#t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+t_name=YY_swab
+echo "mkdir $run_path/$t_name "> test 
+
+echo  "~/Process_pipeline.1 germline -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name  -bait_target /data/bed_file/panel-X/x-panel.intervals -target /data/bed_file/panel-X/x-panel.intervals  -seqtype targetseq -outdir . -fusion -cnv -cnv_bed /data/DB/X_PoN/x.padded.bed  -cnv_pon /data/DB/X_PoN/normals.pon  -outdir . -wenku panel_X > $t_name/$t_name.sh" >> test
+
+echo "dos2unix $t_name/$t_name.sh" >> test
+
+
+
+sh test
+cd $t_name 
+
+
+
+
+
+
+awk 'NR==FNR{a[$0]=1;next}!a[$0]{print}' 
+
+--------------------------------------------------------------------------------------
+BRCA    seqtype=ampliseq 不要去重     #success
+
+run_path=/data/project/test/BRCA_new/12_02
+
+ad=/data/NGS_raw_data/ilmn/171202_NB501424_0025_AHTC2VAFXX
+
+t_R1=1710288_FFPE_S14_R1_001.fastq.gz
+t_R2=1710288_FFPE_S14_R2_001.fastq.gz
+t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+echo "mkdir $run_path/$t_name "> test 
+
+echo  "~/Process_pipeline.1 germline -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name  -bait_target /data/bed_file/BRCA1-2/BRCA1_2.20131001.designed.intervals -target /data/bed_file/BRCA1-2/BRCA1_2.20131001.designed.intervals  -seqtype ampliseq -outdir . -fusion   -outdir . -wenku BRCA > $t_name/$t_name.sh" >> test
+
+echo "dos2unix $t_name/$t_name.sh" >> test
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+全外 wes  2个样本 tumor和normal  
+
+run_path=/data/project/exom/1207
+
+ad=/data/project/exom/1207/raw
+
+t_R1=YH20180105-1-1710523-FFPE_HHMFLCCXY_L4_1.fq.gz
+t_R2=YH20180105-1-1710523-FFPE_HHMFLCCXY_L4_2.fq.gz
+#t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+t_name=1710523
+n_R1=YH20180105-1-1721352-gDNA_HHMFLCCXY_L4_1.fq.gz
+n_R2=YH20180105-1-1721352-gDNA_HHMFLCCXY_L4_2.fq.gz
+#n_name=`echo $t_R1|awk -F"_" '{print $1}'`
+n_name=1721352
+echo "mkdir $run_path/$t_name "> test 
+
+echo  "~/Process_pipeline.1 wes -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name -nfq1 $ad/$n_R1 -nfq2 $ad/$n_R2   -normal $n_name -bait_target  /data/bed_file/WES/xgen-exome-research-panel-probes.intervals -target /data/bed_file/WES/xgen-exome-research-panel-probes.intervals   -outdir . -fusion -cnv -cnv_bed /data/DB/exom_PoN/gatk4/xgen.padded.bed  -cnv_pon /data/DB/exom_PoN/gatk4/swift.pon -cnv_avg /data/DB/exom_PoN/scatter_plot/swift.avg -outdir . -genotype -msi > $t_name/$t_name.sh" >> test
+
+echo "dos2unix $t_name/$t_name.sh" >> test
+sh test
+cd $t_name 
+cp ~/detect.wes.py detect.$t_name.py
+
+#if need to split into n/t
+mkdir -p ./1.QC && mkdir -p ./2.mapping
+awk 'NR>=70&&NR<130' $t_name.sh > n.sh
+awk 'NR<=70||NR>=130' $t_name.sh > t.sh
+
+wc -l *sh
+     60 n.sh
+    124 t.sh
+
+
+awk 'NR==FNR{a[$0]=1;next}!a[$0]{print}' 
+
+
+
+
+
+#50gene
+
+#50gene 2个样本 tumor 和 normal      #这批的83基因当做16基因做，
+awk 'NR>=89&&NR<=159' $t_name.sh  > n.sh
+awk 'NR<=89||NR>=159' $t_name.sh  > t.sh
+mkdir 1.QC && mkdir 2.mapping
+cp ~/detect.16gene.py detect.$t_name.py
+nohup python3.6 detect.$t_name.py &
+
+run_path=/data/project/50gene
+
+ad=/data/NGS_raw_data/ilmn/180116_NB501424_0032_AHVWLVAFXX/Data
+t_R1=1820007_cfDNA_S15_R1_001.fastq.gz
+t_R2=1820007_cfDNA_S15_R2_001.fastq.gz
+n_R1=1820008_gDNA_S16_R1_001.fastq.gz
+n_R2=1820008_gDNA_S16_R2_001.fastq.gz
+#t_name=`echo $t_R1|awk -F"_" '{print $1}'`
+t_name=1820007
+#n_name=`echo $n_R1|awk -F"_" '{print $1}'`
+n_name=1820008
+echo "mkdir $run_path/$t_name "> test 
+# /data/DB/83_PoN/scatter_plot/FFPE.avg /data/DB/83_PoN/scatter_plot/cfDNA.avg
+echo  "~/Process_pipeline.1 somatic -tfq1 $ad/$t_R1 -tfq2 $ad/$t_R2 -tumor $t_name -nfq1 $ad/$n_R1 -nfq2 $ad/$n_R2 -normal $n_name  -bait_target /data/bed_file/50gene/50gene.intervals -target /data/bed_file/50gene/50gene.intervals -outdir .  -cnv -cnv_bed /data/DB/83_PoN/gatk4/83.padded.bed -cnv_pon /data/DB/83_PoN/gatk4/normals.pon  -cnv_avg /data/DB/83_PoN/scatter_plot/cfDNA.avg  -outdir . -wenku 15gene > $t_name/$t_name.sh" >> test
+echo "dos2unix $t_name/$t_name.sh" >> test
+
+sh test
+cd $t_name 
+
+
+mkdir -p ./3.germline.variant_calling;
+for i in `more /data/bed_file/50gene/split/list`;do echo -e "java -jar /home/software/GenomeAnalysisTK.jar  -T HaplotypeCaller -R /data/reference/human/hg19.2bit/hg19.fasta -I ../2.mapping/1820008.recal.bam --dbsnp /data/reference/human/gatk_resource/dbsnp_138.hg19.vcf  -L /data/bed_file/50gene/split/$i -o $i.vcf" > ./3.germline.variant_calling/$i.sh ; done
+
+cp ~/bat/16gene.mutect.bat.sh ./3.germline.variant_calling/1820008.germline.bat.sh
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#rna
+data_path=/data/project/exom/1207/raw
+R1=YH20180105-1-1710523-RNA_HHMFLCCXY_L4_1.fq.gz
+R2=YH20180105-1-1710523-RNA_HHMFLCCXY_L4_2.fq.gz
+name=1710523
+mkdir $name && cd $name
+python  /home/khl/rna/fusion_script.py -l_fq $data_path/$R1  -r_fq $data_path/$R2 -s $name -o .
+dos2unix $name.sh
+cd ..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#将12节点的数据拷贝到41上
+#if [ "$#" -eq 0 ];then
+        #for i in `ls | grep "16\|17"`; do scp -r ./$i lh@192.168.1.41:/data/project/rna_fusion/1228/$i/fusion; done   #更改这个地址/data/project/rna_fusion/1228
+
+在12上：sh ~/scp.sh
+
+
+
+-----------------------------------------------------
+#16gene
+for i in `more /data/bed_file/16gene/split/list`; do echo -e "java -Xmx1g -jar /home/software/GenomeAnalysisTK.jar -T MuTect2 -I:tumor ../2.mapping/1721057.recal.bam -I:normal ../2.mapping/1721058.recal.bam -L /data/bed_file/16gene/split/$i -R /data/reference/human/hg19.2bit/hg19.fasta --dbsnp /data/reference/human/gatk_resource/dbsnp_138.hg19.vcf -o $i.vcf \necho "$i \>\> complete" ">./3.variant_calling/$i.sh; done;
+cp ~/bat/16gene.mutect.bat.sh ./3.variant_calling/1721057.bat.sh
+
+
+
+
+
+
+
+
